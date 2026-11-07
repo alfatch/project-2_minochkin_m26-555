@@ -24,3 +24,22 @@
 
 >>>Введите команду: drop_table users
 Таблица "users" успешно удалена.
+## CRUD-операции
+
+- `insert into <table> values (<v1>, <v2>, ...)` — создать запись.
+- `select from <table> [where <col> = <val>]` — прочитать записи.
+- `update <table> set <col> = <val> where <cond>` — обновить запись.
+- `delete from <table> where <cond>` — удалить запись.
+- `info <table>` — информация о таблице.
+
+**Пример:**
+```bash
+>>> insert into users values ("Sergei", 28, true)
+Запись с ID=1 успешно добавлена в таблицу "users".
+
+>>> select from users
++----+--------+-----+-----------+
+| ID |  name  | age | is_active |
++----+--------+-----+-----------+
+| 1  | Sergei | 28  |    True   |
++----+--------+-----+-----------+
