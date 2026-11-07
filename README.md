@@ -31,6 +31,9 @@
 - `update <table> set <col> = <val> where <cond>` — обновить запись.
 - `delete from <table> where <cond>` — удалить запись.
 - `info <table>` — информация о таблице.
+## Демонстрация работы
+
+[![asciicast](https://asciinema.org/a/23xnqUdR3LxBnswI.svg)](https://asciinema.org/a/23xnqUdR3LxBnswI)
 
 **Пример:**
 ```bash

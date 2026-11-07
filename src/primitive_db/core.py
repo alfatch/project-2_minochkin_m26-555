@@ -67,11 +67,11 @@ def insert(metadata, table_name, values):
     schema = metadata[table_name]
     expected = len(schema) - 1  # без ID
     if len(values) != expected:
-         print(
+        print(
             f'Ошибка: Неверное количество значений. '
             f'Ожидается {expected}, получено {len(values)}.'
         )
-         return None
+        return None
 
     record = {}
     for i, col in enumerate(schema[1:], start=0):
@@ -97,7 +97,7 @@ def select(table_data, where_clause=None):
             result.append(row)
     return result
 
-def update(table_data, set_clause, where_clause):
+def update(table_data, set_clause, where_clause, schema=None):
     updated_count = 0
     updated_ids = []
     for row in table_data:
@@ -108,10 +108,20 @@ def update(table_data, set_clause, where_clause):
                 break
         if match:
             for key, val in set_clause.items():
+                # приведение типа по схеме
+                if schema:
+                    col_type = next(
+                        (c['type'] for c in schema if c['name'] == key), 'str'
+                    )
+                    if col_type == 'int':
+                        val = int(val)
+                    elif col_type == 'bool':
+                        val = str(val).lower() in ('true', '1', 'yes')
                 row[key] = val
             updated_count += 1
             updated_ids.append(row.get('ID'))
     return table_data, updated_count, updated_ids
+
 
 def delete(table_data, where_clause):
     to_delete = []

@@ -141,8 +141,10 @@ def run():
 
         elif command == 'insert':
             if len(rest) < 4 or rest[0] != 'into' or rest[2] != 'values':
-                print("Некорректное значение." \
-                " Ожидается: insert into <table> values (...)")
+                print(
+                    "Некорректное значение. "
+                    "Ожидается: insert into <table> values (...)"
+                )
                 continue
             table_name = rest[1]
             values_str = ' '.join(rest[3:])
@@ -177,9 +179,9 @@ def run():
             if len(rest) > 2:
                 if rest[2] != 'where':
                     print(
-                    "Некорректное значение. "
-                    "Ожидается: select from <table> [where ...]"
-                )
+                        "Некорректное значение. "
+                        "Ожидается: select from <table> [where ...]"
+                    )
                     continue
                 where_clause = parse_condition(rest[3:])
                 if where_clause is None:
@@ -211,7 +213,8 @@ def run():
                 print("Некорректное значение в set или where.")
                 continue
             data = utils.load_table_data(table_name)
-            data, count, ids = core.update(data, set_clause, where_clause)
+            schema = metadata[table_name]
+            data, count, ids = core.update(data, set_clause, where_clause, schema)
             if count:
                 utils.save_table_data(table_name, data)
                 ids_str = ', '.join(str(i) for i in ids)
