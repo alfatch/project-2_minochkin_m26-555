@@ -1,0 +1,17 @@
+import prompt
+
+
+def welcome():
+    print('\n***')
+    print('<command> exit - выйти из программы')
+    print('<command> help - справочная информация')
+
+    while True:
+        command = prompt.string('Введите команду: ')
+        if command == 'exit':
+            break
+        elif command == 'help':
+            print('\n<command> exit - выйти из программы')
+            print('<command> help - справочная информация')
+        else:
+            print(f'Неизвестная команда: {command}')
