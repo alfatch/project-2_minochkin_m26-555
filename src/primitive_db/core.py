@@ -1,14 +1,13 @@
 # src/primitive_db/core.py
 import prettytable
 
+from primitive_db.constants import VALID_TYPES
 from primitive_db.decorators import (
     confirm_action,
     create_cacher,
     handle_db_errors,
     log_time,
 )
-
-VALID_TYPES = {'int', 'str', 'bool'}
 
 _select_cache = create_cacher()
 

@@ -1,11 +1,12 @@
 # src/primitive_db/decorators.py
+import functools
 import time
 
 import prompt
 
 
 def handle_db_errors(func):
-    """Перехватывает типичные ошибки БД и выводит понятные сообщения."""
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -24,8 +25,8 @@ def handle_db_errors(func):
 
 
 def confirm_action(action_name):
-    """Фабрика декораторов: спрашивает подтверждение перед опасной операцией."""
     def decorator(func):
+        @functools.wraps(func)
         def wrapper(*args, **kwargs):
             answer = prompt.string(
                 f'Вы уверены, что хотите выполнить "{action_name}"? [y/n]: '
@@ -39,7 +40,7 @@ def confirm_action(action_name):
 
 
 def log_time(func):
-    """Замеряет время выполнения функции и выводит его."""
+    @functools.wraps(func)
     def wrapper(*args, **kwargs):
         start = time.monotonic()
         result = func(*args, **kwargs)

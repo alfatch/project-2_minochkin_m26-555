@@ -1,8 +1,10 @@
 # primitive_db
 
-Простая CLI-база данных.
+Простая CLI-база данных с поддержкой CRUD-операций, декораторов и кэширования.
 
-## Управление таблицами
+
+
+### Управление таблицами
 
 Доступные команды:
 - `create_table <имя_таблицы> <столбец1:тип> ...` — создать таблицу.
@@ -31,6 +33,10 @@
 - `update <table> set <col> = <val> where <cond>` — обновить запись.
 - `delete from <table> where <cond>` — удалить запись.
 - `info <table>` — информация о таблице.
+## Установка и запуск
+```bash
+make install
+make run
 ## Демонстрация работы
 
 [![asciicast](https://asciinema.org/a/23xnqUdR3LxBnswI.svg)](https://asciinema.org/a/23xnqUdR3LxBnswI)
