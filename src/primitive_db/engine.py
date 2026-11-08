@@ -4,6 +4,7 @@ import shlex
 import prompt
 
 from primitive_db import core, utils
+from primitive_db.core import _select_cache
 
 DB_META_FILE = 'db_meta.json'
 
@@ -117,6 +118,7 @@ def run():
             new_meta = core.create_table(metadata, table_name, columns)
             if new_meta is not None:
                 utils.save_metadata(DB_META_FILE, new_meta)
+                _select_cache.clear()
 
         elif command == 'drop_table':
             if len(rest) != 1:
@@ -124,8 +126,9 @@ def run():
                 continue
             table_name = rest[0]
             new_meta = core.drop_table(metadata, table_name)
-            if new_meta is not None:          # ← было: is not metadata
+            if new_meta is not None:
                 utils.save_metadata(DB_META_FILE, new_meta)
+                _select_cache.clear()
 
         elif command == 'info':
             if len(rest) != 1:
@@ -159,6 +162,7 @@ def run():
                 record['ID'] = new_id
                 data.append(record)
                 utils.save_table_data(table_name, data)
+                _select_cache.clear()
                 print(f'Запись с ID={new_id} успешно добавлена'
                        f'в таблицу "{table_name}".')
 
@@ -187,7 +191,7 @@ def run():
                 if where_clause is None:
                     print("Некорректное значение: не удалось разобрать условие where.")
                     continue
-            result = core.select(data, where_clause)
+            result = core.select(table_name, data, where_clause)
             core.print_table(table_name, schema, result)
 
         elif command == 'update':
@@ -217,6 +221,7 @@ def run():
             data, count, ids = core.update(data, set_clause, where_clause, schema)
             if count:
                 utils.save_table_data(table_name, data)
+                _select_cache.clear()
                 ids_str = ', '.join(str(i) for i in ids)
                 print(
                     f'Запись(и) с ID={ids_str} в таблице '
@@ -244,6 +249,7 @@ def run():
             data, count = core.delete(data, where_clause)
             if count:
                 utils.save_table_data(table_name, data)
+                _select_cache.clear()
                 print(f'Запись(и) удалены из таблицы "{table_name}".')
             else:
                 print("Записей, удовлетворяющих условию, не найдено.")

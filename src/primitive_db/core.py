@@ -1,31 +1,42 @@
 # src/primitive_db/core.py
 import prettytable
 
+from primitive_db.decorators import (
+    confirm_action,
+    create_cacher,
+    handle_db_errors,
+    log_time,
+)
+
 VALID_TYPES = {'int', 'str', 'bool'}
 
-# Работа с таблицами
+_select_cache = create_cacher()
 
+# Работа с таблицами
+@handle_db_errors
 def create_table(metadata, table_name, columns):
     if table_name in metadata:
         print(f'Ошибка: Таблица "{table_name}" уже существует.')
-        return None  # ← было return metadata
+        return None
 
     parsed_columns = [{'name': 'ID', 'type': 'int'}]
     for col in columns:
         if ':' not in col:
             print(f'Некорректное значение: {col}. Попробуйте снова.')
-            return None  # ← было return metadata
+            return None
         name, col_type = col.split(':', 1)
         if col_type not in VALID_TYPES:
             print(f'Некорректное значение: {col}. Попробуйте снова.')
-            return None  # ← было return metadata
+            return None
         parsed_columns.append({'name': name, 'type': col_type})
 
     metadata[table_name] = parsed_columns
     cols_str = ', '.join(f"{c['name']}:{c['type']}" for c in parsed_columns)
     print(f'Таблица "{table_name}" успешно создана со столбцами: {cols_str}')
-    return metadata  
-
+    return metadata 
+ 
+@handle_db_errors
+@confirm_action("удаление таблицы")
 def drop_table(metadata, table_name):
     if table_name not in metadata:
         print(f'Ошибка: Таблица "{table_name}" не существует.')
@@ -59,6 +70,8 @@ def _validate_value(value, col_type):
         return None
     return None
 
+@log_time
+@handle_db_errors
 def insert(metadata, table_name, values):
     if table_name not in metadata:
         print(f'Ошибка: Таблица "{table_name}" не существует.')
@@ -83,20 +96,31 @@ def insert(metadata, table_name, values):
 
     return record
 
-def select(table_data, where_clause=None):
-    if not where_clause:
-        return table_data
-    result = []
-    for row in table_data:
-        match = True
-        for key, val in where_clause.items():
-            if key not in row or str(row[key]) != str(val):
-                match = False
-                break
-        if match:
-            result.append(row)
-    return result
 
+_select_cache = create_cacher()
+
+
+@log_time
+@handle_db_errors
+def select(table_name, table_data, where_clause=None):
+    def fetch():
+        if not where_clause:
+            return table_data
+        result = []
+        for row in table_data:
+            match = True
+            for key, val in where_clause.items():
+                if key not in row or str(row[key]) != str(val):
+                    match = False
+                    break
+            if match:
+                result.append(row)
+        return result
+
+    key = (table_name, frozenset(where_clause.items()) if where_clause else None)
+    return _select_cache(key, fetch)
+
+@handle_db_errors
 def update(table_data, set_clause, where_clause, schema=None):
     updated_count = 0
     updated_ids = []
@@ -122,7 +146,8 @@ def update(table_data, set_clause, where_clause, schema=None):
             updated_ids.append(row.get('ID'))
     return table_data, updated_count, updated_ids
 
-
+@handle_db_errors
+@confirm_action("удаление записи")
 def delete(table_data, where_clause):
     to_delete = []
     for row in table_data:
